@@ -28,6 +28,17 @@ final class ParseStripsTest: XCTestCase {
         assertEquals(result.config.strips[1], [["1", "2", "3"]])
     }
 
+    func testSingleMonitorHostsAStackOfStrips() {
+        let result = parseConfig(
+            """
+            [strips]
+            1 = [['S', 'D'], ['1', '2', '3'], ['M']]
+            """,
+        )
+        assertEquals(result.errors, [])
+        assertEquals(result.config.strips[1], [["S", "D"], ["1", "2", "3"], ["M"]])
+    }
+
     func testStripCountMustMatchMonitorCount() {
         let result = parseConfig(
             """

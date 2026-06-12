@@ -23,7 +23,8 @@ func parseStrips(_ raw: OrderedJson, _ backtrace: ConfigBacktrace, _ errors: ino
             continue
         }
         guard let strips = parseStripsForMonitorCount(rawStrips, backtrace, &errors) else { continue }
-        if strips.count != monitorCount {
+        // A single monitor hosts the whole strip stack. Multiple monitors pin strips 1:1
+        if monitorCount > 1 && strips.count != monitorCount {
             errors += [.init(backtrace, "strips.\(key) must define exactly \(monitorCount) strip(s) (one per monitor). But it defines \(strips.count)")]
             continue
         }

@@ -24,6 +24,7 @@ func setUpWorkspacesForTests() {
     // Don't create any bindings and workspaces for tests
     config.modes = [mainModeId: Mode(bindings: [:])]
     config.persistentWorkspaces = []
+    resetStripMruState()
 
     for workspace in Workspace.all {
         for child in workspace.children {

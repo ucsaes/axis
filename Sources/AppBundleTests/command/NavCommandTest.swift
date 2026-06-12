@@ -123,6 +123,34 @@ final class NavCommandTest: XCTestCase {
         assertEquals(ws.rootTilingContainer.children.map { ($0 as? Window)?.windowId }, [2, 1])
     }
 
+    func testStackAxisMovesBetweenStripsOnSingleMonitor() async throws {
+        config.strips = [1: [["a", "b"], ["1", "2", "3"], ["m"]]]
+        Workspace.get(byName: "1").rootTilingContainer.apply {
+            _ = TestWindow.new(id: 1, parent: $0).focusWindow()
+        }
+        // Up from the middle strip: enters the top strip at its first workspace (no MRU yet)
+        try await NavCommand(args: NavCmdArgs(rawArgs: [], .up)).run(.defaultEnv, .emptyStdin)
+        assertEquals(focus.workspace.name, "a")
+        // The stack doesn't wrap: up from the top strip stops
+        let result = try await NavCommand(args: NavCmdArgs(rawArgs: [], .up)).run(.defaultEnv, .emptyStdin)
+        assertEquals(result.exitCode.rawValue, 0)
+        assertEquals(focus.workspace.name, "a")
+        // Down again: returns to the middle strip's most recently used workspace
+        try await NavCommand(args: NavCmdArgs(rawArgs: [], .down)).run(.defaultEnv, .emptyStdin)
+        assertEquals(focus.workspace.name, "1")
+        try await NavCommand(args: NavCmdArgs(rawArgs: [], .down)).run(.defaultEnv, .emptyStdin)
+        assertEquals(focus.workspace.name, "m")
+    }
+
+    func testStackAxisLandsOnStripMru() async throws {
+        config.strips = [1: [["a", "b"], ["1", "2", "3"]]]
+        // Focus 'b' so it becomes the MRU of the top strip
+        check(Workspace.get(byName: "b").focusWorkspace())
+        check(Workspace.get(byName: "2").focusWorkspace())
+        try await NavCommand(args: NavCmdArgs(rawArgs: [], .up)).run(.defaultEnv, .emptyStdin)
+        assertEquals(focus.workspace.name, "b")
+    }
+
     func testPocketWorkspaceReturnsToStrip() async throws {
         Workspace.get(byName: "2").rootTilingContainer.apply {
             _ = TestWindow.new(id: 1, parent: $0).focusWindow()

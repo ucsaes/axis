@@ -69,6 +69,7 @@ private struct FrozenFocus: AeroAny, Equatable, Sendable {
     }
 
     _focus = newFocus.frozen
+    StripPlane.recordFocusForStripMru(workspaceName: newFocus.workspace.name)
     let status = newFocus.workspace.workspaceMonitor.setActiveWorkspace(newFocus.workspace)
 
     newFocus.windowOrNil?.markAsMostRecentChild()

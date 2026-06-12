@@ -25,16 +25,19 @@ The command first tries to move focus to the window in the given direction withi
 focused workspace. When the workspace boundary is hit, the direction decides what happens next:
 
 * *Strip axis* (perpendicular to the monitor arrangement): focus moves to the next workspace
-in the strip of the current monitor (wraps around). Focus lands on the window closest
+in the current strip (wraps around). Focus lands on the window closest
 to the entered side: `nav right` enters the next workspace at its leftmost window.
-* *Monitor axis* (along the monitor arrangement): focus moves to the neighbor monitor's
-visible workspace. Movement stops at the outermost monitors.
+* *Stack axis* (along the monitor arrangement): focus moves to the adjacent strip in the
+stack. With multiple monitors, strips are pinned 1:1 to monitors, so this is a monitor jump
+landing on the neighbor's visible workspace. A single monitor hosts the whole stack, so this
+switches to the adjacent strip's most recently used workspace. The stack doesn't wrap.
 
 The strip axis is left/right when monitors are stacked vertically (or for a single monitor),
 and up/down when monitors are placed side by side.
 
 Workspaces that are not listed in any strip ("pocket" workspaces) can still be visited.
-Strip-axis navigation from a pocket workspace returns to the strip of the current monitor.
+Strip-axis navigation from a pocket workspace returns to the most recently used workspace
+of the strip the pocket was entered from.
 
 // =========================================================== Options
 include::./util/conditional-options-header.adoc[]

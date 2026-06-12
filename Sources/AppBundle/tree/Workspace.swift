@@ -201,9 +201,10 @@ private func rearrangeWorkspacesOnMonitors() {
 }
 
 /// When the new monitor count has a `[strips]` config entry, every monitor shows a workspace
-/// of its strip: the workspace previously visible on that screen point if it belongs to the
-/// strip, the first strip member otherwise. Returns false when strips are not configured
-/// for the current monitor count (the caller falls back to the closest-monitor heuristic).
+/// of a strip it hosts (a single monitor hosts the whole stack): the workspace previously
+/// visible on that screen point if it belongs to a hosted strip, the hosted strip's most
+/// recently used workspace otherwise. Returns false when strips are not configured for the
+/// current monitor count (the caller falls back to the closest-monitor heuristic).
 ///
 /// Follows the same snapshot-clear-rebuild pattern as rearrangeWorkspacesOnMonitors:
 /// no intermediate map state is ever observable because everything is synchronous on MainActor.
@@ -216,13 +217,18 @@ private func rearrangeWorkspacesOnStripPlane() -> Bool {
 
     for (monitorIndex, monitor) in plane.monitors.enumerated() {
         let point = monitor.rect.topLeftCorner
-        let strip = plane.strips[monitorIndex]
+        let hostedStripIndices = plane.monitors.count > 1 ? [monitorIndex] : Array(plane.strips.indices)
         let prevOnThisScreen = oldScreenPointToVisibleWorkspace[point]?.name
             ?? screenPointToPrevVisibleWorkspace[point]
-        let workspaceName = strip.first(where: { $0 == prevOnThisScreen }) ?? strip.first.orDie()
-        let workspace = Workspace.get(byName: workspaceName)
+        let workspace: Workspace = if let prevOnThisScreen,
+                                      hostedStripIndices.contains(where: { plane.strips[$0].contains(prevOnThisScreen) })
+        {
+            Workspace.get(byName: prevOnThisScreen)
+        } else {
+            plane.mostRecentWorkspace(inStripAt: hostedStripIndices.first.orDie())
+        }
         check(point.setActiveWorkspace(workspace),
-              "Strip workspace (\(workspaceName)) is incompatible with the monitor (\(point))")
+              "Strip workspace (\(workspace.name)) is incompatible with the monitor (\(point))")
     }
     return true
 }

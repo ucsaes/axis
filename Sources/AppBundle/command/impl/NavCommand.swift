@@ -45,7 +45,7 @@ struct NavCommand: Command {
         // 2. Workspace boundary is hit
         return direction.orientation == plane.stripAxisOrientation
             ? navAlongStrip(target, plane, direction, io)
-            : navAcrossMonitors(target, plane, direction, io)
+            : navAcrossStack(target, plane, direction, io)
     }
 
     @MainActor private func navAlongStrip(
@@ -55,38 +55,39 @@ struct NavCommand: Command {
         _ io: CmdIo,
     ) -> BinaryExitCode {
         let currentWs = target.workspace
-        let targetWsName: String
+        let targetWs: Workspace
         if let next = plane.workspaceInStrip(after: currentWs.name, inDirection: direction) {
             if next == currentWs.name { return .succ } // Single-workspace strip
-            targetWsName = next
+            targetWs = Workspace.get(byName: next)
         } else {
-            // Pocket workspace: return to the strip of the current monitor
-            let monitor = currentWs.workspaceMonitor
-            guard let monitorIndex = plane.monitorIndex(of: monitor) else {
+            // Pocket workspace: return to the most recently used workspace of the context strip
+            guard let stripIndex = plane.stripIndex(of: currentWs) else {
                 return .fail(io.err("Should never happen. Can't find the current monitor in the strip plane"))
             }
-            let strip = plane.strips[monitorIndex]
-            let prevVisible = prevVisibleWorkspaceName(on: monitor)
-            guard let name = strip.first(where: { $0 == prevVisible }) ?? strip.first else { return .fail }
-            targetWsName = name
+            targetWs = plane.mostRecentWorkspace(inStripAt: stripIndex)
         }
-        return goTo(workspace: Workspace.get(byName: targetWsName), target, direction, io)
+        return goTo(workspace: targetWs, target, direction, io)
     }
 
-    @MainActor private func navAcrossMonitors(
+    @MainActor private func navAcrossStack(
         _ target: LiveFocus,
         _ plane: StripPlane,
         _ direction: CardinalDirection,
         _ io: CmdIo,
     ) -> BinaryExitCode {
-        guard let monitorIndex = plane.monitorIndex(of: target.workspace.workspaceMonitor) else {
+        guard let currentStripIndex = plane.stripIndex(of: target.workspace) else {
             return .fail(io.err("Should never happen. Can't find the current monitor in the strip plane"))
         }
-        let targetMonitorIndex = monitorIndex + direction.focusOffset
-        guard plane.monitors.indices.contains(targetMonitorIndex) else {
-            return .succ // The outermost monitor: monitor axis doesn't wrap
+        let targetStripIndex = currentStripIndex + direction.focusOffset
+        guard plane.strips.indices.contains(targetStripIndex) else {
+            return .succ // The outermost strip: the stack axis doesn't wrap
         }
-        return goTo(workspace: plane.monitors[targetMonitorIndex].activeWorkspace, target, direction, io)
+        let targetMonitor = plane.monitor(forStripAt: targetStripIndex)
+        let currentMonitor = target.workspace.workspaceMonitor
+        let targetWs: Workspace = targetMonitor.rect.topLeftCorner != currentMonitor.rect.topLeftCorner
+            ? targetMonitor.activeWorkspace // Jump to whatever is visible on the neighbor monitor
+            : plane.mostRecentWorkspace(inStripAt: targetStripIndex) // Hidden strip on the same monitor
+        return goTo(workspace: targetWs, target, direction, io)
     }
 
     @MainActor private func goTo(
