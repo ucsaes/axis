@@ -135,6 +135,7 @@ private let configParser: [String: any ParserProtocol<Config>] = [
     modeConfigRootKey: Parser(\.modes, skipParsing(Config().modes)), // Parsed manually
 
     "gaps": Parser(\.gaps, parseGaps),
+    "border": Parser(\.border, parseBorder),
     "workspace-to-monitor-force-assignment": Parser(\.workspaceToMonitorForceAssignment, parseWorkspaceToMonitorAssignment),
     "strips": Parser(\.strips, parseStrips),
     "on-window-detected": Parser(\.onWindowDetected, parseOnWindowDetectedArray),
@@ -386,7 +387,7 @@ private func parsePersistentWorkspaces(_ raw: OrderedJson, _ backtrace: ConfigBa
         }
 }
 
-private func parseArrayOfStrings(_ raw: OrderedJson, _ backtrace: ConfigBacktrace) -> ParsedConfig<[String]> {
+func parseArrayOfStrings(_ raw: OrderedJson, _ backtrace: ConfigBacktrace) -> ParsedConfig<[String]> {
     parseTomlArray(raw, backtrace)
         .flatMap { arr in
             arr.enumerated().mapAllOrFailure { (index, elem) in

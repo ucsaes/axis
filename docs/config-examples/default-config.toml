@@ -79,6 +79,17 @@ on-mode-changed = []
     outer.top =        0
     outer.right =      0
 
+# Native window border drawn around the focused window (Axis addition).
+# Colors are #rrggbb, #aarrggbb, or 0x... A pair [top-left, bottom-right] makes a gradient.
+# [border]
+#     enabled = true
+#     width = 12
+#     corner-radius = 12
+#     blacklist = ['com.raycast.macos']
+# [border.colors]
+#     default = '#ececee'
+#     1 = ['#e86c64', '#ce4a42']
+
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 # 'main' binding mode must be always presented
