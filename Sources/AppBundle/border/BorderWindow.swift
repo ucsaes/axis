@@ -80,14 +80,21 @@ final class BorderWindow {
             context?.interpolationQuality = .none
         }
         windowSize = frame.size
-
-        var origin = frame.origin
-        SLSMoveWindow(cid, wid, &origin)
         draw(size: frame.size)
-        SLSSetWindowLevel(cid, wid, windowLevel())
-        // Order below the target: the ring shows in the tiling gap and macOS raising the focused
-        // window on click doesn't fight us.
-        SLSOrderWindow(cid, wid, -1, targetWid)
+
+        // Position + z-order in one atomic transaction. Crucially the border must match BOTH the
+        // target's level AND its sub-level: matching only the level lets the border fall behind
+        // sibling windows that sit at a different sub-level. Order below the target so the ring shows
+        // in the tiling gap and macOS raising the focused window on click doesn't fight us.
+        var level: Int32 = 0
+        SLSGetWindowLevel(cid, targetWid, &level)
+        let subLevel = SLSGetWindowSubLevel(cid, targetWid)
+        let transaction = SLSTransactionCreate(cid).takeRetainedValue()
+        SLSTransactionSetWindowLevel(transaction, wid, level)
+        SLSTransactionSetWindowSubLevel(transaction, wid, subLevel)
+        SLSTransactionMoveWindowWithGroup(transaction, wid, frame.origin)
+        SLSTransactionOrderWindow(transaction, wid, -1, targetWid)
+        SLSTransactionCommit(transaction, 0)
     }
 
     /// Fast path for window-server move events: reposition only, no redraw. This is what keeps the
@@ -104,12 +111,6 @@ final class BorderWindow {
     func hide() {
         isVisible = false
         SLSOrderWindow(cid, wid, 0, 0)
-    }
-
-    private func windowLevel() -> Int32 {
-        var level: Int32 = 0
-        SLSGetWindowLevel(cid, targetWid, &level)
-        return level
     }
 
     private func draw(size: CGSize) {
