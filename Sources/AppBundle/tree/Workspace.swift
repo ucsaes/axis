@@ -18,6 +18,17 @@ import Common
     screenPointToPrevVisibleWorkspace[monitor.rect.topLeftCorner]
 }
 
+extension Workspace {
+    /// Pocket workspaces (not pinned to any monitor) open on the monitor the user is looking at,
+    /// not on the main monitor. Pinned (strip member or force-assignment regex) and currently
+    /// visible workspaces are left where they are. No-op without a [strips] config: pockets
+    /// only exist relative to the strip plane, and upstream behavior is kept otherwise
+    @MainActor func summonPocketIfHidden(to monitor: Monitor) {
+        if StripPlane.current == nil || isVisible || forceAssignedMonitor != nil { return }
+        assignedMonitorPoint = monitor.rect.topLeftCorner
+    }
+}
+
 @MainActor
 private func getStubWorkspace(forPoint point: CGPoint) -> Workspace {
     if let prev = screenPointToPrevVisibleWorkspace[point].map({ Workspace.get(byName: $0) }),
