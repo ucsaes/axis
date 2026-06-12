@@ -28,12 +28,13 @@ final class BorderManager {
         }
         registerEventsIfNeeded()
 
-        // Track every window currently visible on a visible workspace; those are the windows whose
-        // border could be shown without a workspace switch. Others get torn down.
-        let visibleWindows = Workspace.all
-            .filter(\.isVisible)
-            .flatMap { $0.allLeafWindowsRecursive }
-        let desired = Set(visibleWindows.map(\.windowId))
+        // A border is kept for every managed window for the window's whole lifetime, regardless of
+        // which workspace is visible. Tearing borders down on a workspace switch would recreate them
+        // as brand-new window-server windows, which dimming tools (e.g. HazeOver) then re-classify
+        // from scratch — causing random dimming right after a switch. Keeping the wid stable avoids
+        // that entirely. Borders are removed only when their window is destroyed.
+        let allWindows = Workspace.all.flatMap { $0.allLeafWindowsRecursive }
+        let desired = Set(allWindows.map(\.windowId))
 
         var changed = false
         for wid in borders.keys where !desired.contains(wid) {
@@ -41,7 +42,7 @@ final class BorderManager {
             borders[wid] = nil
             changed = true
         }
-        for window in visibleWindows where borders[window.windowId] == nil {
+        for window in allWindows where borders[window.windowId] == nil {
             if let border = BorderWindow(cid: cid, targetWid: window.windowId) {
                 borders[window.windowId] = border
                 changed = true
