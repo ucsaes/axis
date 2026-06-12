@@ -28,12 +28,13 @@ final class BorderManager {
         }
         registerEventsIfNeeded()
 
-        // Track every window currently visible on a visible workspace; those are the windows whose
-        // border could be shown without a workspace switch. Others get torn down.
-        let visibleWindows = Workspace.all
-            .filter(\.isVisible)
-            .flatMap { $0.allLeafWindowsRecursive }
-        let desired = Set(visibleWindows.map(\.windowId))
+        // A border is kept for every managed window for the window's whole lifetime, regardless of
+        // which workspace is visible. Tearing borders down on a workspace switch would recreate them
+        // as brand-new window-server windows, which dimming tools (e.g. HazeOver) then re-classify
+        // from scratch — causing random dimming right after a switch. Keeping the wid stable avoids
+        // that entirely. Borders are removed only when their window is destroyed.
+        let allWindows = Workspace.all.flatMap { $0.allLeafWindowsRecursive }
+        let desired = Set(allWindows.map(\.windowId))
 
         var changed = false
         for wid in borders.keys where !desired.contains(wid) {
@@ -41,7 +42,7 @@ final class BorderManager {
             borders[wid] = nil
             changed = true
         }
-        for window in visibleWindows where borders[window.windowId] == nil {
+        for window in allWindows where borders[window.windowId] == nil {
             if let border = BorderWindow(cid: cid, targetWid: window.windowId) {
                 borders[window.windowId] = border
                 changed = true
@@ -85,15 +86,6 @@ final class BorderManager {
         border.render(color: border.color, width: CGFloat(config.border.width), cornerRadius: CGFloat(config.border.cornerRadius), visible: true)
     }
 
-    /// A window changed z-order. Axis focuses windows by raising them asynchronously (AXRaise on the
-    /// app's thread), so the focused window is raised *after* the synchronous border render — at which
-    /// point this event fires. Re-place the border below the now-raised window so it doesn't stay
-    /// stuck behind the previously-focused window (and so HazeOver sees the correct front window).
-    func onWindowReordered(_ wid: UInt32) {
-        guard wid == visibleWid, let border = borders[wid] else { return }
-        border.render(color: border.color, width: CGFloat(config.border.width), cornerRadius: CGFloat(config.border.cornerRadius), visible: true)
-    }
-
     func onWindowDestroyed(_ wid: UInt32) {
         borders[wid]?.hide()
         borders[wid] = nil
@@ -133,7 +125,6 @@ private func registerBorderEvents(_ cid: Int32) {
             switch event {
                 case EVENT_WINDOW_MOVE: BorderManager.shared.onWindowMoved(wid)
                 case EVENT_WINDOW_RESIZE: BorderManager.shared.onWindowResized(wid)
-                case EVENT_WINDOW_REORDER: BorderManager.shared.onWindowReordered(wid)
                 case EVENT_WINDOW_CLOSE, EVENT_WINDOW_DESTROY: BorderManager.shared.onWindowDestroyed(wid)
                 default: break
             }
@@ -141,7 +132,7 @@ private func registerBorderEvents(_ cid: Int32) {
     }
     let handler = unsafeBitCast(modify, to: UnsafeMutableRawPointer.self)
     let ctx = UnsafeMutableRawPointer(bitPattern: Int(cid))
-    for event in [EVENT_WINDOW_MOVE, EVENT_WINDOW_RESIZE, EVENT_WINDOW_REORDER, EVENT_WINDOW_CLOSE] {
+    for event in [EVENT_WINDOW_MOVE, EVENT_WINDOW_RESIZE, EVENT_WINDOW_CLOSE] {
         SLSRegisterNotifyProc(handler, event, ctx)
     }
     // The spawn-event payload puts the wid after a uint64 space id; destroy is enough for cleanup.
@@ -171,5 +162,4 @@ private func registerBorderEvents(_ cid: Int32) {
 private let EVENT_WINDOW_CLOSE: UInt32 = 804
 private let EVENT_WINDOW_MOVE: UInt32 = 806
 private let EVENT_WINDOW_RESIZE: UInt32 = 807
-private let EVENT_WINDOW_REORDER: UInt32 = 808
 private let EVENT_WINDOW_DESTROY: UInt32 = 1326
