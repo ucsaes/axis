@@ -5,8 +5,8 @@ import SwiftUI
 @MainActor
 public func menuBar(viewModel: TrayMenuModel) -> some Scene { // todo should it be converted to "SwiftUI struct"?
     MenuBarExtra {
-        let shortIdentification = "\(aeroSpaceAppName) v\(aeroSpaceAppVersion) \(gitShortHash)"
-        let identification      = "\(aeroSpaceAppName) v\(aeroSpaceAppVersion) \(gitHash)"
+        let shortIdentification = "\(axisAppName) v\(axisAppVersion) \(gitShortHash)"
+        let identification      = "\(axisAppName) v\(axisAppVersion) \(gitHash)"
         Text(shortIdentification)
         Button("Copy to clipboard") { identification.copyToClipboard() }
             .keyboardShortcut("C", modifiers: .command)
@@ -45,7 +45,7 @@ public func menuBar(viewModel: TrayMenuModel) -> some Scene { // todo should it 
         getExperimentalUISettingsMenu(viewModel: viewModel)
         openConfigButton()
         reloadConfigButton()
-        Button("Quit \(aeroSpaceAppName)") {
+        Button("Quit \(axisAppName)") {
             Task.startUnstructured {
                 terminationHandler?.beforeTermination()
                 terminateApp()

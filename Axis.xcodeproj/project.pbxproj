@@ -7,114 +7,114 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		238EF26CAAADD1FE11312D7C /* default-config.toml in Resources */ = {isa = PBXBuildFile; fileRef = 8FE45A887100EB70912B07F0 /* default-config.toml */; };
-		852F88894A3B9FC385563665 /* AppBundle in Frameworks */ = {isa = PBXBuildFile; productRef = 018E55979F61DA6DA6DCB442 /* AppBundle */; };
-		883A44C8295FECF49F94269D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84C35D8E25B61D4D1ADB1851 /* Assets.xcassets */; };
-		C40E0D9C06086C58955237D9 /* AeroSpaceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C104E927E079E60C91AE3E /* AeroSpaceApp.swift */; };
+		222D1D2F3ECF85999CE0FF0C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1EFA977917024C74D1EAFC8 /* Assets.xcassets */; };
+		2EAFDF4BA771F724131FBED3 /* AppBundle in Frameworks */ = {isa = PBXBuildFile; productRef = FBCA1643DD4C22678E311EF5 /* AppBundle */; };
+		9BECAE4A6358E94D7412E29C /* AxisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4FFC50B924565BC4A7DC5E /* AxisApp.swift */; };
+		FF90D02A35ECEAA7E7761918 /* default-config.toml in Resources */ = {isa = PBXBuildFile; fileRef = D097305C604392FF7621450C /* default-config.toml */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		09685297933511208058F7CF /* AeroSpace.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AeroSpace.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		18C104E927E079E60C91AE3E /* AeroSpaceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AeroSpaceApp.swift; sourceTree = "<group>"; };
-		6606D24B4B23E9582CFA3B86 /* AeroSpace */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AeroSpace; path = .; sourceTree = SOURCE_ROOT; };
-		84C35D8E25B61D4D1ADB1851 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8FE45A887100EB70912B07F0 /* default-config.toml */ = {isa = PBXFileReference; path = "default-config.toml"; sourceTree = "<group>"; };
-		CF85755BFF66B59A84F98262 /* AeroSpace.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AeroSpace.entitlements; sourceTree = "<group>"; };
+		1F4FFC50B924565BC4A7DC5E /* AxisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisApp.swift; sourceTree = "<group>"; };
+		52A0E7165E3426F7A5FDDAF4 /* axis */ = {isa = PBXFileReference; lastKnownFileType = folder; name = axis; path = .; sourceTree = SOURCE_ROOT; };
+		94E945D9F12D3BECCA060F6E /* Axis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Axis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7C83474895BDAF127D0343C /* Axis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Axis.entitlements; sourceTree = "<group>"; };
+		B1EFA977917024C74D1EAFC8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D097305C604392FF7621450C /* default-config.toml */ = {isa = PBXFileReference; path = "default-config.toml"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		2AFAB0BC1A2742132D7CB950 /* Frameworks */ = {
+		5351E36FDB4ED1B5A6757511 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				852F88894A3B9FC385563665 /* AppBundle in Frameworks */,
+				2EAFDF4BA771F724131FBED3 /* AppBundle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0E0109AE5F7881520B0D2384 /* config-examples */ = {
+		01C49570565C275679955742 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8FE45A887100EB70912B07F0 /* default-config.toml */,
+				94E945D9F12D3BECCA060F6E /* Axis.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4AF6DD0D4081AA57ECE99BB0 /* AxisApp */ = {
+			isa = PBXGroup;
+			children = (
+				1F4FFC50B924565BC4A7DC5E /* AxisApp.swift */,
+			);
+			name = AxisApp;
+			path = Sources/AxisApp;
+			sourceTree = "<group>";
+		};
+		6CA6540B67D8F3C499DC4361 /* config-examples */ = {
+			isa = PBXGroup;
+			children = (
+				D097305C604392FF7621450C /* default-config.toml */,
 			);
 			name = "config-examples";
 			path = "docs/config-examples";
 			sourceTree = "<group>";
 		};
-		21E15F84087042E63C0150AB /* resources */ = {
+		7F3B83E18A93A85FEFC4249D /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				CF85755BFF66B59A84F98262 /* AeroSpace.entitlements */,
-				84C35D8E25B61D4D1ADB1851 /* Assets.xcassets */,
-			);
-			path = resources;
-			sourceTree = "<group>";
-		};
-		393942C56466FDBBE35F9EC0 = {
-			isa = PBXGroup;
-			children = (
-				6F6BCFA26BF3E35072EF2C77 /* AeroSpaceApp */,
-				0E0109AE5F7881520B0D2384 /* config-examples */,
-				3A1FF786C84025133F96138D /* Packages */,
-				21E15F84087042E63C0150AB /* resources */,
-				62BEA6F49E6648E2EE3C208F /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		3A1FF786C84025133F96138D /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				6606D24B4B23E9582CFA3B86 /* AeroSpace */,
+				52A0E7165E3426F7A5FDDAF4 /* axis */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
 		};
-		62BEA6F49E6648E2EE3C208F /* Products */ = {
+		9FD82CA1D30FEB039D725CF8 = {
 			isa = PBXGroup;
 			children = (
-				09685297933511208058F7CF /* AeroSpace.app */,
+				4AF6DD0D4081AA57ECE99BB0 /* AxisApp */,
+				6CA6540B67D8F3C499DC4361 /* config-examples */,
+				7F3B83E18A93A85FEFC4249D /* Packages */,
+				E64D4691B0570540B47502DF /* resources */,
+				01C49570565C275679955742 /* Products */,
 			);
-			name = Products;
 			sourceTree = "<group>";
 		};
-		6F6BCFA26BF3E35072EF2C77 /* AeroSpaceApp */ = {
+		E64D4691B0570540B47502DF /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				18C104E927E079E60C91AE3E /* AeroSpaceApp.swift */,
+				B1EFA977917024C74D1EAFC8 /* Assets.xcassets */,
+				A7C83474895BDAF127D0343C /* Axis.entitlements */,
 			);
-			name = AeroSpaceApp;
-			path = Sources/AeroSpaceApp;
+			path = resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B00BE37A79171B0EE995EB83 /* AeroSpace */ = {
+		CD099F3D04F37FA19CDC6965 /* Axis */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1C34EA41A1F045E016D1944D /* Build configuration list for PBXNativeTarget "AeroSpace" */;
+			buildConfigurationList = 1A2111C4951EB61CFDEC66AF /* Build configuration list for PBXNativeTarget "Axis" */;
 			buildPhases = (
-				D7A18303C03F2CB26F7BB54B /* Sources */,
-				BA5F2F9022B8385637D263E4 /* Resources */,
-				2AFAB0BC1A2742132D7CB950 /* Frameworks */,
+				4E4B20AA22895B79A44D4C2C /* Sources */,
+				1FF324A0DD18E72B29AE0701 /* Resources */,
+				5351E36FDB4ED1B5A6757511 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = AeroSpace;
+			name = Axis;
 			packageProductDependencies = (
-				018E55979F61DA6DA6DCB442 /* AppBundle */,
+				FBCA1643DD4C22678E311EF5 /* AppBundle */,
 			);
-			productName = AeroSpace;
-			productReference = 09685297933511208058F7CF /* AeroSpace.app */;
+			productName = Axis;
+			productReference = 94E945D9F12D3BECCA060F6E /* Axis.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		0B585B3093DA0FC12E7983E2 /* Project object */ = {
+		9DDA92A692BC72E8D4D2AAD2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
@@ -122,53 +122,130 @@
 				TargetAttributes = {
 				};
 			};
-			buildConfigurationList = D6982B0C3E92C5AF28BCD315 /* Build configuration list for PBXProject "AeroSpace" */;
+			buildConfigurationList = 4B12B6D49FF58B5412D9F500 /* Build configuration list for PBXProject "Axis" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
 				en,
 			);
-			mainGroup = 393942C56466FDBBE35F9EC0;
+			mainGroup = 9FD82CA1D30FEB039D725CF8;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				9A00429279948F2879C9FE30 /* XCLocalSwiftPackageReference "." */,
+				F781F15400D7D328877B034C /* XCLocalSwiftPackageReference "." */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 62BEA6F49E6648E2EE3C208F /* Products */;
+			productRefGroup = 01C49570565C275679955742 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B00BE37A79171B0EE995EB83 /* AeroSpace */,
+				CD099F3D04F37FA19CDC6965 /* Axis */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		BA5F2F9022B8385637D263E4 /* Resources */ = {
+		1FF324A0DD18E72B29AE0701 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				883A44C8295FECF49F94269D /* Assets.xcassets in Resources */,
-				238EF26CAAADD1FE11312D7C /* default-config.toml in Resources */,
+				222D1D2F3ECF85999CE0FF0C /* Assets.xcassets in Resources */,
+				FF90D02A35ECEAA7E7761918 /* default-config.toml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		D7A18303C03F2CB26F7BB54B /* Sources */ = {
+		4E4B20AA22895B79A44D4C2C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C40E0D9C06086C58955237D9 /* AeroSpaceApp.swift in Sources */,
+				9BECAE4A6358E94D7412E29C /* AxisApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		175127AAF914899705FABF12 /* Debug */ = {
+		38258A5B35F3ED77F6B04CCC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		44E3CF167AFF0AE6A03E4A73 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = resources/Axis.entitlements;
+				CODE_SIGN_IDENTITY = "axis-codesign-certificate";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = "0.0.0-SNAPSHOT";
+				PRODUCT_BUNDLE_IDENTIFIER = ucsaes.axis.debug;
+				PRODUCT_NAME = "Axis-Debug";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.2;
+			};
+			name = Debug;
+		};
+		93D79F32B4F691C9B0970686 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -230,89 +307,12 @@
 			};
 			name = Debug;
 		};
-		31B702864571F51814E4F12C /* Debug */ = {
+		EE4D42CAD141BA8BFFF371CE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = resources/AeroSpace.entitlements;
-				CODE_SIGN_IDENTITY = "aerospace-codesign-certificate";
-				COMBINE_HIDPI_IMAGES = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSUIElement = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = "0.0.0-SNAPSHOT";
-				PRODUCT_BUNDLE_IDENTIFIER = bobko.aerospace.debug;
-				PRODUCT_NAME = "AeroSpace-Debug";
-				SDKROOT = macosx;
-				SWIFT_VERSION = 6.2;
-			};
-			name = Debug;
-		};
-		A991F90908318BCD1655E904 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		D1D1A9E07F0AB40E14CAC0F6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = resources/AeroSpace.entitlements;
-				CODE_SIGN_IDENTITY = "aerospace-codesign-certificate";
+				CODE_SIGN_ENTITLEMENTS = resources/Axis.entitlements;
+				CODE_SIGN_IDENTITY = "axis-codesign-certificate";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -323,8 +323,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = "0.0.0-SNAPSHOT";
-				PRODUCT_BUNDLE_IDENTIFIER = bobko.aerospace;
-				PRODUCT_NAME = AeroSpace;
+				PRODUCT_BUNDLE_IDENTIFIER = ucsaes.axis;
+				PRODUCT_NAME = Axis;
 				SDKROOT = macosx;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_VERSION = 6.2;
@@ -334,20 +334,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1C34EA41A1F045E016D1944D /* Build configuration list for PBXNativeTarget "AeroSpace" */ = {
+		1A2111C4951EB61CFDEC66AF /* Build configuration list for PBXNativeTarget "Axis" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				31B702864571F51814E4F12C /* Debug */,
-				D1D1A9E07F0AB40E14CAC0F6 /* Release */,
+				44E3CF167AFF0AE6A03E4A73 /* Debug */,
+				EE4D42CAD141BA8BFFF371CE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		D6982B0C3E92C5AF28BCD315 /* Build configuration list for PBXProject "AeroSpace" */ = {
+		4B12B6D49FF58B5412D9F500 /* Build configuration list for PBXProject "Axis" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				175127AAF914899705FABF12 /* Debug */,
-				A991F90908318BCD1655E904 /* Release */,
+				93D79F32B4F691C9B0970686 /* Debug */,
+				38258A5B35F3ED77F6B04CCC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -355,18 +355,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		9A00429279948F2879C9FE30 /* XCLocalSwiftPackageReference "." */ = {
+		F781F15400D7D328877B034C /* XCLocalSwiftPackageReference "." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = .;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		018E55979F61DA6DA6DCB442 /* AppBundle */ = {
+		FBCA1643DD4C22678E311EF5 /* AppBundle */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppBundle;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 0B585B3093DA0FC12E7983E2 /* Project object */;
+	rootObject = 9DDA92A692BC72E8D4D2AAD2 /* Project object */;
 }

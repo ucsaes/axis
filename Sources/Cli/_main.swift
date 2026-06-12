@@ -5,7 +5,7 @@ import Network
 
 let usage =
     """
-    USAGE: \(CommandLine.arguments.first ?? "aerospace") [-h|--help] [-v|--version] <subcommand> [<args>...]
+    USAGE: \(CommandLine.arguments.first ?? "axis") [-h|--help] [-v|--version] <subcommand> [<args>...]
 
     SUBCOMMANDS:
     \(subcommandDescriptions.sortedBy { $0[0] }.toPaddingTable(columnSeparator: "   ").joined(separator: "\n"))
@@ -34,16 +34,16 @@ struct Main {
             }
             print(
                 """
-                aerospace CLI client version: \(cliClientVersionAndHash)
-                AeroSpace.app server version: \(serverVersionAndHash ?? "Unknown. The server is not running")
+                axis CLI client version: \(cliClientVersionAndHash)
+                Axis.app server version: \(serverVersionAndHash ?? "Unknown. The server is not running")
                 """,
             )
             if serverVersionAndHash != nil && cliClientVersionAndHash != serverVersionAndHash {
                 eprint(
                     """
-                    Warning: AeroSpace client/server versions don't match. Possible fixes:
-                      - Restart AeroSpace.app (server restart is required after each update)
-                      - Reinstall and restart AeroSpace (corrupted installation)
+                    Warning: Axis client/server versions don't match. Possible fixes:
+                      - Restart Axis.app (server restart is required after each update)
+                      - Reinstall and restart Axis (corrupted installation)
                     """,
                 )
             }
@@ -66,7 +66,7 @@ struct Main {
         let connection = NWConnection(to: NWEndpoint.unix(path: socketPath), using: .tcp)
 
         if let e = await connection.startBlocking().error {
-            exit(failExitCode, err: "Can't connect to AeroSpace server. Is AeroSpace.app running?\n\(e.localizedDescription)")
+            exit(failExitCode, err: "Cannot connect to Axis server. Is Axis.app running?\n\(e.localizedDescription)")
         }
 
         var stdin = ""
@@ -97,8 +97,8 @@ struct Main {
             }
         }
 
-        let windowId = ProcessInfo.processInfo.environment[AEROSPACE_WINDOW_ID].flatMap(UInt32.init)
-        let workspace = ProcessInfo.processInfo.environment[AEROSPACE_WORKSPACE]
+        let windowId = ProcessInfo.processInfo.environment[AXIS_WINDOW_ID].flatMap(UInt32.init)
+        let workspace = ProcessInfo.processInfo.environment[AXIS_WORKSPACE]
 
         // Handle subscribe command specially
         if parsedArgs is SubscribeCmdArgs {
@@ -113,12 +113,12 @@ struct Main {
         if ans.exitCode != EXIT_CODE_ZERO && ans.serverVersionAndHash != cliClientVersionAndHash {
             eprint(
                 """
-                Warning: AeroSpace client/server versions don't match
-                  - aerospace CLI client version: \(cliClientVersionAndHash)
-                  - AeroSpace.app server version: \(ans.serverVersionAndHash)
+                Warning: Axis client/server versions don't match
+                  - axis CLI client version: \(cliClientVersionAndHash)
+                  - Axis.app server version: \(ans.serverVersionAndHash)
                   Possible fixes:
-                  - Restart AeroSpace.app (server restart is required after each update)
-                  - Reinstall and restart AeroSpace (corrupted installation)
+                  - Restart Axis.app (server restart is required after each update)
+                  - Reinstall and restart Axis (corrupted installation)
                 """,
             )
         }

@@ -1,0 +1,2 @@
+public let AXIS_WINDOW_ID = "AXIS_WINDOW_ID"
+public let AXIS_WORKSPACE = "AXIS_WORKSPACE"

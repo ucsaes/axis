@@ -64,13 +64,13 @@ struct ServerArgs: Sendable {
 }
 
 private let serverHelp = """
-    USAGE: \(CommandLine.arguments.first ?? "AeroSpace.app/Contents/MacOS/AeroSpace") [<options>]
+    USAGE: \(CommandLine.arguments.first ?? "Axis.app/Contents/MacOS/Axis") [<options>]
 
     OPTIONS:
       -h, --help              Print help
-      -v, --version           Print AeroSpace.app version
-      --config-path <path>    Config path. It will take priority over ~/.aerospace.toml
-                              and ${XDG_CONFIG_HOME}/aerospace/aerospace.toml
+      -v, --version           Print Axis.app version
+      --config-path <path>    Config path. It will take priority over ~/.axis.toml
+                              and ${XDG_CONFIG_HOME}/axis/axis.toml
       --read-only             Disable window management.
                               Useful if you want to use only debug-windows or other query commands.
     """
@@ -88,7 +88,7 @@ private func initServerArgs() {
         index += 1
         switch current {
             case "--version", "-v":
-                exit(EXIT_CODE_ZERO, out: "\(aeroSpaceAppVersion) \(gitHash)")
+                exit(EXIT_CODE_ZERO, out: "\(axisAppVersion) \(gitHash)")
             case "--config-path":
                 switch args.getOrNil(atIndex: index) {
                     case let arg?: unsafe _serverArgs.configLocation = arg
