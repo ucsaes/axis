@@ -91,6 +91,14 @@ final class BorderManager {
         if visibleWid == wid { visibleWid = nil }
     }
 
+    /// Drop all borders so the next reconcile rebuilds them with current config (width, radius,
+    /// colors). Called on config reload, where every setting may have changed.
+    func invalidateAll() {
+        for border in borders.values { border.hide() }
+        borders = [:]
+        visibleWid = nil
+    }
+
     private func requestNotifications() {
         var list = Array(borders.keys)
         guard !list.isEmpty else { return }

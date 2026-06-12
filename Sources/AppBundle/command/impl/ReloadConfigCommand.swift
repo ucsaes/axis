@@ -32,6 +32,7 @@ struct ReloadConfigCommand: Command {
                 resetHotKeys()
                 config = parsedConfig
                 configUrl = url
+                BorderManager.shared.invalidateAll() // Rebuild borders with the new width/radius/colors
                 try await activateMode(activeMode)
                 syncStartAtLogin()
                 MessageModel.shared.message = nil
