@@ -66,9 +66,12 @@ private struct FrozenFocus: AeroAny, Equatable, Sendable {
     // Normalize mruWindow when focus away from a workspace
     if oldFocus.workspace != newFocus.workspace {
         oldFocus.windowOrNil?.markAsMostRecentChild()
+        // The old focused workspace is always visible, so its monitor resolves without recursion
+        newFocus.workspace.summonPocketIfHidden(to: oldFocus.workspace.workspaceMonitor)
     }
 
     _focus = newFocus.frozen
+    StripPlane.recordFocusForStripMru(workspaceName: newFocus.workspace.name)
     let status = newFocus.workspace.workspaceMonitor.setActiveWorkspace(newFocus.workspace)
 
     newFocus.windowOrNil?.markAsMostRecentChild()

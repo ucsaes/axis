@@ -1,0 +1,57 @@
+= aerospace-nav(1)
+include::util/man-attributes.adoc[]
+:manname: aerospace-nav
+// tag::purpose[]
+:manpurpose: Navigate the workspace plane (strips): windows first, then workspaces along the strip, monitors across the strip
+// end::purpose[]
+
+// =========================================================== Synopsis
+== Synopsis
+[verse]
+// tag::synopsis[]
+aerospace nav [-h|--help] [--window-id <window-id>] [--carry] (left|down|up|right)
+
+// end::synopsis[]
+
+// =========================================================== Description
+== Description
+
+// tag::body[]
+{manpurpose}
+
+Requires a `[strips]` table in the config for the current number of monitors.
+
+The command first tries to move focus to the window in the given direction within the
+focused workspace. When the workspace boundary is hit, the direction decides what happens next:
+
+* *Strip axis* (perpendicular to the monitor arrangement): focus moves to the next workspace
+in the current strip (wraps around). Focus lands on the window closest
+to the entered side: `nav right` enters the next workspace at its leftmost window.
+* *Stack axis* (along the monitor arrangement): focus moves to the adjacent strip in the
+stack. With multiple monitors, strips are pinned 1:1 to monitors, so this is a monitor jump
+landing on the neighbor's visible workspace. A single monitor hosts the whole stack, so this
+switches to the adjacent strip's most recently used workspace. The stack doesn't wrap.
+
+The strip axis is left/right when monitors are stacked vertically (or for a single monitor),
+and up/down when monitors are placed side by side.
+
+Workspaces that are not listed in any strip ("pocket" workspaces) can still be visited.
+Strip-axis navigation from a pocket workspace returns to the most recently used workspace
+of the strip the pocket was entered from.
+
+// =========================================================== Options
+include::./util/conditional-options-header.adoc[]
+
+-h, --help:: Print help
+--carry:: Carry the focused window along
+include::./util/window-id-flag-desc.adoc[]
+
+// =========================================================== Arguments
+include::./util/conditional-arguments-header.adoc[]
+
+(left|down|up|right):: Direction to navigate
+
+// end::body[]
+
+// =========================================================== Footer
+include::util/man-footer.adoc[]

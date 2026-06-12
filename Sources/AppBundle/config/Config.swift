@@ -57,6 +57,7 @@ struct Config: ConvenienceCopyable {
 
     var gaps: Gaps = .zero
     var workspaceToMonitorForceAssignment: [String: [MonitorDescription]] = [:]
+    var strips: [Int: [[String]]] = [:] // Monitor count -> strips (one strip per monitor)
     var modes: [String: Mode] = [:]
     var onWindowDetected: [WindowDetectedCallback] = []
     var onModeChanged: [any Command] = []

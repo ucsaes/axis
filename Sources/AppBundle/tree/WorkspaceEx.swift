@@ -41,6 +41,11 @@ extension Workspace {
     }
 
     @MainActor var forceAssignedMonitor: Monitor? {
+        // Strip membership pins the workspace to its monitor and takes priority over
+        // workspace-to-monitor-force-assignment. Pocket workspaces fall through
+        if let stripMonitor = StripPlane.current?.assignedMonitor(forWorkspace: name) {
+            return stripMonitor
+        }
         guard let monitorDescriptions = config.workspaceToMonitorForceAssignment[name] else { return nil }
         let sortedMonitors = sortedMonitors
         return monitorDescriptions.lazy

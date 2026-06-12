@@ -12,6 +12,23 @@ import Common
     getStubWorkspace(forPoint: monitor.rect.topLeftCorner)
 }
 
+/// The workspace that was visible on the monitor before the current one. Used by nav to return
+/// from a pocket workspace to the most recently used workspace of the monitor's strip
+@MainActor func prevVisibleWorkspaceName(on monitor: Monitor) -> String? {
+    screenPointToPrevVisibleWorkspace[monitor.rect.topLeftCorner]
+}
+
+extension Workspace {
+    /// Pocket workspaces (not pinned to any monitor) open on the monitor the user is looking at,
+    /// not on the main monitor. Pinned (strip member or force-assignment regex) and currently
+    /// visible workspaces are left where they are. No-op without a [strips] config: pockets
+    /// only exist relative to the strip plane, and upstream behavior is kept otherwise
+    @MainActor func summonPocketIfHidden(to monitor: Monitor) {
+        if StripPlane.current == nil || isVisible || forceAssignedMonitor != nil { return }
+        assignedMonitorPoint = monitor.rect.topLeftCorner
+    }
+}
+
 @MainActor
 private func getStubWorkspace(forPoint point: CGPoint) -> Workspace {
     if let prev = screenPointToPrevVisibleWorkspace[point].map({ Workspace.get(byName: $0) }),
@@ -164,6 +181,7 @@ extension CGPoint {
 
 @MainActor
 private func rearrangeWorkspacesOnMonitors() {
+    if rearrangeWorkspacesOnStripPlane() { return }
     let newScreens = monitors.map(\.rect.topLeftCorner)
     var newScreenToOldScreenMapping: [CGPoint: CGPoint] = [:]
     for (oldScreen, _) in screenPointToVisibleWorkspace {
@@ -191,6 +209,39 @@ private func rearrangeWorkspacesOnMonitors() {
         check(newScreen.setActiveWorkspace(stubWorkspace),
               "getStubWorkspace generated incompatible stub workspace (\(stubWorkspace)) for the monitor (\(newScreen)")
     }
+}
+
+/// When the new monitor count has a `[strips]` config entry, every monitor shows a workspace
+/// of a strip it hosts (a single monitor hosts the whole stack): the workspace previously
+/// visible on that screen point if it belongs to a hosted strip, the hosted strip's most
+/// recently used workspace otherwise. Returns false when strips are not configured for the
+/// current monitor count (the caller falls back to the closest-monitor heuristic).
+///
+/// Follows the same snapshot-clear-rebuild pattern as rearrangeWorkspacesOnMonitors:
+/// no intermediate map state is ever observable because everything is synchronous on MainActor.
+@MainActor
+private func rearrangeWorkspacesOnStripPlane() -> Bool {
+    guard let plane = StripPlane.current else { return false }
+    let oldScreenPointToVisibleWorkspace = screenPointToVisibleWorkspace
+    screenPointToVisibleWorkspace = [:]
+    visibleWorkspaceToScreenPoint = [:]
+
+    for (monitorIndex, monitor) in plane.monitors.enumerated() {
+        let point = monitor.rect.topLeftCorner
+        let hostedStripIndices = plane.monitors.count > 1 ? [monitorIndex] : Array(plane.strips.indices)
+        let prevOnThisScreen = oldScreenPointToVisibleWorkspace[point]?.name
+            ?? screenPointToPrevVisibleWorkspace[point]
+        let workspace: Workspace = if let prevOnThisScreen,
+                                      hostedStripIndices.contains(where: { plane.strips[$0].contains(prevOnThisScreen) })
+        {
+            Workspace.get(byName: prevOnThisScreen)
+        } else {
+            plane.mostRecentWorkspace(inStripAt: hostedStripIndices.first.orDie())
+        }
+        check(point.setActiveWorkspace(workspace),
+              "Strip workspace (\(workspace.name)) is incompatible with the monitor (\(point))")
+    }
+    return true
 }
 
 @MainActor
