@@ -44,7 +44,6 @@ extern CGError SLSSetWindowOpacity(int cid, uint32_t wid, bool opaque);
 extern CGError SLSOrderWindow(int cid, uint32_t wid, int mode, uint32_t rel_wid);
 extern CGError SLSGetWindowBounds(int cid, uint32_t wid, CGRect *frame);
 extern CGError SLSGetWindowLevel(int cid, uint32_t wid, int *level);
-extern int SLSGetWindowSubLevel(int cid, uint32_t wid);
 extern CGContextRef SLWindowContextCreate(int cid, uint32_t wid, CFDictionaryRef options);
 extern CGError SLSFlushWindowContentRegion(int cid, uint32_t wid, CFTypeRef dirty);
 
@@ -57,7 +56,6 @@ extern CGError SLSRequestNotificationsForWindows(int cid, uint32_t *window_list,
 extern CFTypeRef SLSTransactionCreate(int cid);
 extern CGError SLSTransactionMoveWindowWithGroup(CFTypeRef transaction, uint32_t wid, CGPoint point);
 extern CGError SLSTransactionSetWindowLevel(CFTypeRef transaction, uint32_t wid, int level);
-extern CGError SLSTransactionSetWindowSubLevel(CFTypeRef transaction, uint32_t wid, int sub_level);
 extern CGError SLSTransactionOrderWindow(CFTypeRef transaction, uint32_t wid, int order, uint32_t rel_wid);
 extern CGError SLSTransactionCommit(CFTypeRef transaction, int synchronous);
 

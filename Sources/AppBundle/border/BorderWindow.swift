@@ -68,7 +68,10 @@ final class BorderWindow {
 
         guard visible else { return hide() }
         guard let bounds = targetBounds() else { return hide() }
-        let outset = width / 2
+        // Outset by the full width so the whole stroke lands OUTSIDE the target frame (in the tiling
+        // gap). Combined with placing the border one level above the target, this keeps the border
+        // visible above any dimming overlay (e.g. HazeOver) without ever covering window content.
+        let outset = width
         let frame = bounds.insetBy(dx: -outset, dy: -outset)
 
         SLSDisableUpdate(cid)
@@ -82,18 +85,17 @@ final class BorderWindow {
         windowSize = frame.size
         draw(size: frame.size)
 
-        // Position + z-order in one atomic transaction. Crucially the border must match BOTH the
-        // target's level AND its sub-level: matching only the level lets the border fall behind
-        // sibling windows that sit at a different sub-level. Order below the target so the ring shows
-        // in the tiling gap and macOS raising the focused window on click doesn't fight us.
+        // Position + z-order in one atomic transaction. The border sits one level ABOVE the target:
+        // a dimming overlay lives at the target's (normal) level, so a border at the same level races
+        // it for z-order on every focus change (random dimming). One level up removes the race
+        // entirely — the border is unconditionally above the overlay — and the outside-only stroke
+        // means being above the window costs no content overlap.
         var level: Int32 = 0
         SLSGetWindowLevel(cid, targetWid, &level)
-        let subLevel = SLSGetWindowSubLevel(cid, targetWid)
         let transaction = SLSTransactionCreate(cid).takeRetainedValue()
-        SLSTransactionSetWindowLevel(transaction, wid, level)
-        SLSTransactionSetWindowSubLevel(transaction, wid, subLevel)
+        SLSTransactionSetWindowLevel(transaction, wid, level + 1)
         SLSTransactionMoveWindowWithGroup(transaction, wid, frame.origin)
-        SLSTransactionOrderWindow(transaction, wid, -1, targetWid)
+        SLSTransactionOrderWindow(transaction, wid, 1, targetWid)
         SLSTransactionCommit(transaction, 0)
     }
 
@@ -101,7 +103,7 @@ final class BorderWindow {
     /// border glued to the window during a mouse drag with no lag.
     func reposition() {
         guard isVisible, let bounds = targetBounds() else { return }
-        let outset = width / 2
+        let outset = width
         let origin = CGPoint(x: bounds.origin.x - outset, y: bounds.origin.y - outset)
         let transaction = SLSTransactionCreate(cid).takeRetainedValue()
         SLSTransactionMoveWindowWithGroup(transaction, wid, origin)
