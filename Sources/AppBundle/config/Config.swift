@@ -56,6 +56,7 @@ struct Config: ConvenienceCopyable {
     var onFocusedMonitorChanged: [any Command] = []
 
     var gaps: Gaps = .zero
+    var border: BorderConfig = .default
     var workspaceToMonitorForceAssignment: [String: [MonitorDescription]] = [:]
     var strips: [Int: [[String]]] = [:] // Monitor count -> strips (one strip per monitor)
     var modes: [String: Mode] = [:]

@@ -56,6 +56,10 @@ let package = Package(
                 .target(name: "PrivateApi"),
             ],
             swiftSettings: swiftSettings,
+            linkerSettings: [
+                // SkyLight (window server) private framework, for native border rendering
+                .unsafeFlags(["-F", "/System/Library/PrivateFrameworks", "-framework", "SkyLight"]),
+            ],
         ),
         .executableTarget(
             name: "AxisApp",

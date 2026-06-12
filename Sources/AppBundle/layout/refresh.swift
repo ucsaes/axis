@@ -47,6 +47,7 @@ func runHeavyCompleteRefreshSession(
                 SecureInputPanel.shared.refresh()
                 try await normalizeLayoutReason()
                 if shouldLayoutWorkspaces { try await layoutWorkspaces() }
+                BorderController.shared.refreshBorder()
             }
         }
     }
@@ -83,6 +84,7 @@ func runLightSession<T>(
             updateTrayText()
             SecureInputPanel.shared.refresh()
             try await layoutWorkspaces()
+            BorderController.shared.refreshBorder()
             if focusBefore != focusAfter {
                 focusAfter?.nativeFocus() // syncFocusToMacOs
             }

@@ -34,6 +34,9 @@ targets:
         # Agent apps do not appear in the Dock or in the Force Quit window (cmd-opt-esc)
         INFOPLIST_KEY_LSUIElement: YES
         CODE_SIGN_IDENTITY: ${XCODEGEN_AXIS_CODE_SIGN_IDENTITY}
+        # SkyLight (window server) private framework, for native border rendering
+        FRAMEWORK_SEARCH_PATHS: $(inherited) /System/Library/PrivateFrameworks
+        OTHER_LDFLAGS: $(inherited) -framework SkyLight
       configs:
         Debug:
           PRODUCT_NAME: Axis-Debug
