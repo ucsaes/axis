@@ -14,10 +14,10 @@ final class BorderWindow {
     private var windowSize: CGSize = .zero
 
     // Last rendered appearance, so a move event can reposition without recomputing them
-    private var color: BorderColor = BorderColor(topLeft: 0, bottomRight: 0)
+    private(set) var color: BorderColor = BorderColor(topLeft: 0, bottomRight: 0)
     private var width: CGFloat = 0
     private var cornerRadius: CGFloat = 0
-    private var visible = false
+    private(set) var isVisible = false
 
     /// SLS window tags. (1 << 1): no shadow. (1 << 9): keep out of normal window management.
     private static let setTags: UInt64 = (1 << 1) | (1 << 9)
@@ -64,7 +64,7 @@ final class BorderWindow {
         self.color = color
         self.width = width
         self.cornerRadius = cornerRadius
-        self.visible = visible
+        self.isVisible = visible
 
         guard visible else { return hide() }
         guard let bounds = targetBounds() else { return hide() }
@@ -93,7 +93,7 @@ final class BorderWindow {
     /// Fast path for window-server move events: reposition only, no redraw. This is what keeps the
     /// border glued to the window during a mouse drag with no lag.
     func reposition() {
-        guard visible, let bounds = targetBounds() else { return }
+        guard isVisible, let bounds = targetBounds() else { return }
         let outset = width / 2
         let origin = CGPoint(x: bounds.origin.x - outset, y: bounds.origin.y - outset)
         let transaction = SLSTransactionCreate(cid).takeRetainedValue()
@@ -102,7 +102,7 @@ final class BorderWindow {
     }
 
     func hide() {
-        visible = false
+        isVisible = false
         SLSOrderWindow(cid, wid, 0, 0)
     }
 

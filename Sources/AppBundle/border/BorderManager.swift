@@ -13,6 +13,7 @@ final class BorderManager {
     private let cid: Int32 = SLSMainConnectionID()
     private var borders: [UInt32: BorderWindow] = [:]
     private var eventsRegistered = false
+    private var visibleWid: UInt32?
 
     private init() {}
 
@@ -22,6 +23,7 @@ final class BorderManager {
         guard config.border.enabled else {
             for border in borders.values { border.hide() }
             borders = [:]
+            visibleWid = nil
             return
         }
         registerEventsIfNeeded()
@@ -47,16 +49,27 @@ final class BorderManager {
         }
         if changed { requestNotifications() }
 
-        let focusedWid = focus.windowOrNil?.windowId
-        let focusedBlacklisted = focus.windowOrNil.map { config.border.blacklist.contains($0.app.rawAppBundleId ?? "") } ?? false
-        let activeColor = config.border.color(forWorkspace: focus.workspace.name)
-        let width = CGFloat(config.border.width)
-        let radius = CGFloat(config.border.cornerRadius)
-
-        for (wid, border) in borders {
-            let isFocused = wid == focusedWid && !focusedBlacklisted && focus.windowOrNil?.isFullscreen != true
-            border.render(color: activeColor, width: width, cornerRadius: radius, visible: isFocused)
+        // The border color is a static function of the window's workspace, so it isn't recomputed on
+        // focus changes — only when a window's workspace assignment changes. Focus changes just
+        // toggle which border is visible; the drag fast path keeps positions current via events.
+        let newVisibleWid = focusedBorderWid()
+        if newVisibleWid != visibleWid, let old = visibleWid {
+            borders[old]?.hide()
         }
+        visibleWid = newVisibleWid
+        guard let wid = newVisibleWid, let border = borders[wid], let window = Window.get(byId: wid) else { return }
+        let color = config.border.color(forWorkspace: window.nodeWorkspace?.name ?? focus.workspace.name)
+        // Re-render only when something actually changed (focus moved here, color/size differs).
+        if !border.isVisible || border.color != color {
+            border.render(color: color, width: CGFloat(config.border.width), cornerRadius: CGFloat(config.border.cornerRadius), visible: true)
+        }
+    }
+
+    /// The window that should currently show a border, or nil (empty workspace, fullscreen, blacklisted).
+    private func focusedBorderWid() -> UInt32? {
+        guard let window = focus.windowOrNil, !window.isFullscreen,
+              !config.border.blacklist.contains(window.app.rawAppBundleId ?? "") else { return nil }
+        return window.windowId
     }
 
     // MARK: - Window-server events
@@ -66,19 +79,16 @@ final class BorderManager {
     }
 
     func onWindowResized(_ wid: UInt32) {
-        // Re-render with stored appearance (reshape + redraw at the new size)
-        guard let border = borders[wid] else { return }
-        border.render(
-            color: config.border.color(forWorkspace: focus.workspace.name),
-            width: CGFloat(config.border.width),
-            cornerRadius: CGFloat(config.border.cornerRadius),
-            visible: wid == focus.windowOrNil?.windowId,
-        )
+        // Only the visible (focused) border needs to be redrawn at the new size; hidden ones are
+        // redrawn lazily when they become focused.
+        guard wid == visibleWid, let border = borders[wid] else { return }
+        border.render(color: border.color, width: CGFloat(config.border.width), cornerRadius: CGFloat(config.border.cornerRadius), visible: true)
     }
 
     func onWindowDestroyed(_ wid: UInt32) {
         borders[wid]?.hide()
         borders[wid] = nil
+        if visibleWid == wid { visibleWid = nil }
     }
 
     private func requestNotifications() {
