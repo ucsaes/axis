@@ -12,6 +12,12 @@ import Common
     getStubWorkspace(forPoint: monitor.rect.topLeftCorner)
 }
 
+/// The workspace that was visible on the monitor before the current one. Used by nav to return
+/// from a pocket workspace to the most recently used workspace of the monitor's strip
+@MainActor func prevVisibleWorkspaceName(on monitor: Monitor) -> String? {
+    screenPointToPrevVisibleWorkspace[monitor.rect.topLeftCorner]
+}
+
 @MainActor
 private func getStubWorkspace(forPoint point: CGPoint) -> Workspace {
     if let prev = screenPointToPrevVisibleWorkspace[point].map({ Workspace.get(byName: $0) }),
@@ -164,6 +170,7 @@ extension CGPoint {
 
 @MainActor
 private func rearrangeWorkspacesOnMonitors() {
+    if rearrangeWorkspacesOnStripPlane() { return }
     let newScreens = monitors.map(\.rect.topLeftCorner)
     var newScreenToOldScreenMapping: [CGPoint: CGPoint] = [:]
     for (oldScreen, _) in screenPointToVisibleWorkspace {
@@ -191,6 +198,33 @@ private func rearrangeWorkspacesOnMonitors() {
         check(newScreen.setActiveWorkspace(stubWorkspace),
               "getStubWorkspace generated incompatible stub workspace (\(stubWorkspace)) for the monitor (\(newScreen)")
     }
+}
+
+/// When the new monitor count has a `[strips]` config entry, every monitor shows a workspace
+/// of its strip: the workspace previously visible on that screen point if it belongs to the
+/// strip, the first strip member otherwise. Returns false when strips are not configured
+/// for the current monitor count (the caller falls back to the closest-monitor heuristic).
+///
+/// Follows the same snapshot-clear-rebuild pattern as rearrangeWorkspacesOnMonitors:
+/// no intermediate map state is ever observable because everything is synchronous on MainActor.
+@MainActor
+private func rearrangeWorkspacesOnStripPlane() -> Bool {
+    guard let plane = StripPlane.current else { return false }
+    let oldScreenPointToVisibleWorkspace = screenPointToVisibleWorkspace
+    screenPointToVisibleWorkspace = [:]
+    visibleWorkspaceToScreenPoint = [:]
+
+    for (monitorIndex, monitor) in plane.monitors.enumerated() {
+        let point = monitor.rect.topLeftCorner
+        let strip = plane.strips[monitorIndex]
+        let prevOnThisScreen = oldScreenPointToVisibleWorkspace[point]?.name
+            ?? screenPointToPrevVisibleWorkspace[point]
+        let workspaceName = strip.first(where: { $0 == prevOnThisScreen }) ?? strip.first.orDie()
+        let workspace = Workspace.get(byName: workspaceName)
+        check(point.setActiveWorkspace(workspace),
+              "Strip workspace (\(workspaceName)) is incompatible with the monitor (\(point))")
+    }
+    return true
 }
 
 @MainActor

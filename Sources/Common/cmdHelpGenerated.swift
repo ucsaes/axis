@@ -126,6 +126,9 @@ let move_help_generated = """
                 [--boundaries-action <boundary-action>] [--fail-if-fullscreen]
                 [--fail-if-macos-native-fullscreen] (left|down|up|right)
     """
+let nav_help_generated = """
+    USAGE: nav [-h|--help] [--window-id <window-id>] [--carry] (left|down|up|right)
+    """
 let reload_config_help_generated = """
     USAGE: reload-config [-h|--help] [--no-gui] [--dry-run]
     """

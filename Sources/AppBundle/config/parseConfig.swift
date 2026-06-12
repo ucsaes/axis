@@ -136,6 +136,7 @@ private let configParser: [String: any ParserProtocol<Config>] = [
 
     "gaps": Parser(\.gaps, parseGaps),
     "workspace-to-monitor-force-assignment": Parser(\.workspaceToMonitorForceAssignment, parseWorkspaceToMonitorAssignment),
+    "strips": Parser(\.strips, parseStrips),
     "on-window-detected": Parser(\.onWindowDetected, parseOnWindowDetectedArray),
 
     // Deprecated
@@ -271,6 +272,9 @@ struct ParseConfigResult {
             + (config.workspaceToMonitorForceAssignment).keys)
             .toOrderedSet()
     }
+
+    // Strip members are inherently persistent: a strip must be navigable even when its workspaces are empty
+    config.persistentWorkspaces.append(contentsOf: config.strips.values.flatMap { $0.flatMap { $0 } })
 
     if config.enableNormalizationFlattenContainers {
         let containsSplitCommand = config.modes.values.lazy.flatMap { $0.bindings.values }
