@@ -20,7 +20,7 @@ func startUnixSocketServer() {
 func toggleReleaseServerIfDebug(_ state: EnableCmdArgs.State) async {
     if serverArgs.isReadOnly { return }
     if !isDebug { return }
-    let socketFile = "/tmp/\(stableAeroSpaceAppId)-\(unixUserName).sock"
+    let socketFile = "/tmp/\(stableAxisAppId)-\(unixUserName).sock"
     let connection = NWConnection(to: NWEndpoint.unix(path: socketFile), using: .tcp)
     defer { connection.cancel() }
     if await connection.startBlocking().error != nil { // Can't connect, AeroSpace.app is not running
@@ -32,7 +32,7 @@ func toggleReleaseServerIfDebug(_ state: EnableCmdArgs.State) async {
     _ = await connection.readNonAtomic()
 }
 
-private let serverVersionAndHash = "\(aeroSpaceAppVersion) \(gitHash)"
+private let serverVersionAndHash = "\(axisAppVersion) \(gitHash)"
 
 private func newConnection(_ connection: NWConnection) async { // todo add exit codes
     func answerToClient(exitCode: Int32, stdout: String = "", stderr: String = "") async {
@@ -76,8 +76,8 @@ private func newConnection(_ connection: NWConnection) async { // todo add exit 
         guard let token: RunSessionGuard = await .isServerEnabled(orIsEnableCommand: parsedCmd.cmdOrNil) else {
             await answerToClient(
                 exitCode: EXIT_CODE_TWO,
-                stderr: "\(aeroSpaceAppName) server is disabled and doesn't accept commands. " +
-                    "You can use 'aerospace enable on' to enable the server",
+                stderr: "\(axisAppName) server is disabled and doesn't accept commands. " +
+                    "You can use 'axis enable on' to enable the server",
             )
             continue
         }
@@ -114,7 +114,7 @@ private func newConnection(_ connection: NWConnection) async { // todo add exit 
                         serverVersionAndHash: serverVersionAndHash,
                     )
                 if request.windowId == nil || request.workspace == nil {
-                    answer.stderr += "\n\nAeroSpace client has sent incomplete JSON request. 'windowId' or/and 'workspace' fields are missing. Please forward your AEROSPACE_WINDOW_ID and AEROSPACE_WORKSPACE environment variables to these JSON fields. If the appropriate environment variables are empty, pass explicit 'null' in the JSON."
+                    answer.stderr += "\n\nAxis client has sent incomplete JSON request. 'windowId' or/and 'workspace' fields are missing. Please forward your AXIS_WINDOW_ID and AXIS_WORKSPACE environment variables to these JSON fields. If the appropriate environment variables are empty, pass explicit 'null' in the JSON."
                 }
                 await answerToClient(answer)
                 continue

@@ -267,7 +267,7 @@ extension WindowDetectedCallback {
     func matches(_ window: Window) async throws -> Bool {
         switch self.matcher {
             case .legacy(let matcher):
-                if let startupMatcher = matcher.duringAeroSpaceStartup, startupMatcher != isStartup {
+                if let startupMatcher = matcher.duringAxisStartup, startupMatcher != isStartup {
                     return false
                 }
                 if let regex = matcher.windowTitleRegexSubstring, !(try await window.title).contains(caseInsensitiveRegex: regex) {

@@ -1,8 +1,8 @@
-public let stableAeroSpaceAppId: String = "bobko.aerospace"
+public let stableAxisAppId: String = "ucsaes.axis"
 #if DEBUG
-    public let aeroSpaceAppId: String = "bobko.aerospace.debug"
-    public let aeroSpaceAppName: String = "AeroSpace-Debug"
+    public let axisAppId: String = "ucsaes.axis.debug"
+    public let axisAppName: String = "Axis-Debug"
 #else
-    public let aeroSpaceAppId: String = stableAeroSpaceAppId
-    public let aeroSpaceAppName: String = "AeroSpace"
+    public let axisAppId: String = stableAxisAppId
+    public let axisAppName: String = "Axis"
 #endif
