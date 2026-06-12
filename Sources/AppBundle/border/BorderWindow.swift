@@ -2,28 +2,34 @@ import AppKit
 import Common
 import PrivateApi
 
-/// A single window-server (SkyLight) window used to draw one window's border.
-/// Lives entirely at the SLS level — no NSWindow — so it can be repositioned in the same
-/// coordinate space the window server reports the target window, avoiding the lag of
-/// AX-driven overlays. Sources the target frame from SLSGetWindowBounds, so no AppKit
-/// coordinate flipping is involved.
+/// A window-server (SkyLight) window that draws the border for ONE target window and stays glued
+/// to it for its whole lifetime. Following JankyBorders: the border is never moved between target
+/// windows — focus changes only recolor/hide it — so there is no ghosting. Window-server move
+/// events reposition it via a transaction with no redraw, which is what makes dragging smooth.
 @MainActor
 final class BorderWindow {
-    let wid: UInt32
+    let targetWid: UInt32
     private let cid: Int32
     private var context: CGContext?
     private var windowSize: CGSize = .zero
 
-    /// SLS window tags. (1 << 1): no shadow. (1 << 9): keep the overlay out of normal window
-    /// management. 0x40 is the tag bit width SLS expects.
+    // Last rendered appearance, so a move event can reposition without recomputing them
+    private var color: BorderColor = BorderColor(topLeft: 0, bottomRight: 0)
+    private var width: CGFloat = 0
+    private var cornerRadius: CGFloat = 0
+    private var visible = false
+
+    /// SLS window tags. (1 << 1): no shadow. (1 << 9): keep out of normal window management.
     private static let setTags: UInt64 = (1 << 1) | (1 << 9)
     private static let tagSize: Int32 = 0x40
 
-    init?(cid: Int32) {
+    let wid: UInt32
+
+    init?(cid: Int32, targetWid: UInt32) {
         self.cid = cid
+        self.targetWid = targetWid
         guard let region = Self.region(CGRect(x: 0, y: 0, width: 1, height: 1)) else { return nil }
         var wid: UInt32 = 0
-        // type 2: a plain buffered window, the kind used for overlays
         guard SLSNewWindow(cid, 2, 0, 0, region, &wid) == .success, wid != 0 else { return nil }
         self.wid = wid
 
@@ -46,47 +52,67 @@ final class BorderWindow {
         return region?.takeRetainedValue()
     }
 
-    /// Draw the border wrapping `targetWid` just beneath it in the z-order. Returns false if the
-    /// target's bounds can't be read (window gone). Coordinates stay entirely in SLS space.
-    @discardableResult
-    func update(around targetWid: UInt32, color: BorderColor, width: CGFloat, cornerRadius: CGFloat) -> Bool {
-        var targetBounds = CGRect.zero
-        guard SLSGetWindowBounds(cid, targetWid, &targetBounds) == .success, !targetBounds.isEmpty else {
-            return false
-        }
-        // The border window spans the target plus half the stroke on each side
-        let outset = width / 2
-        let windowFrame = targetBounds.insetBy(dx: -outset, dy: -outset)
+    private func targetBounds() -> CGRect? {
+        var bounds = CGRect.zero
+        guard SLSGetWindowBounds(cid, targetWid, &bounds) == .success, !bounds.isEmpty else { return nil }
+        return bounds
+    }
 
-        if windowFrame.size != windowSize, let region = Self.region(CGRect(origin: .zero, size: windowFrame.size)) {
-            SLSDisableUpdate(cid)
-            SLSSetWindowShape(cid, wid, Float(windowFrame.origin.x), Float(windowFrame.origin.y), region)
+    /// Full update: reshape if the target resized, redraw the stroke, and (re)order. Used on
+    /// create, resize, recolor, and focus changes.
+    func render(color: BorderColor, width: CGFloat, cornerRadius: CGFloat, visible: Bool) {
+        self.color = color
+        self.width = width
+        self.cornerRadius = cornerRadius
+        self.visible = visible
+
+        guard visible else { return hide() }
+        guard let bounds = targetBounds() else { return hide() }
+        let outset = width / 2
+        let frame = bounds.insetBy(dx: -outset, dy: -outset)
+
+        SLSDisableUpdate(cid)
+        defer { SLSReenableUpdate(cid) }
+
+        if frame.size != windowSize, let region = Self.region(CGRect(origin: .zero, size: frame.size)) {
+            SLSSetWindowShape(cid, wid, Float(frame.origin.x), Float(frame.origin.y), region)
             context = SLWindowContextCreate(cid, wid, nil)?.takeRetainedValue()
             context?.interpolationQuality = .none
-            SLSReenableUpdate(cid)
         }
-        windowSize = windowFrame.size
-        draw(size: windowFrame.size, color: color, width: width, cornerRadius: cornerRadius)
+        windowSize = frame.size
 
-        var origin = windowFrame.origin
+        var origin = frame.origin
         SLSMoveWindow(cid, wid, &origin)
-        SLSSetWindowLevel(cid, wid, windowLevel(of: targetWid))
-        // Order just below the focused window so the visible border hugs its edge
-        SLSOrderWindow(cid, wid, 1, targetWid)
-        return true
+        draw(size: frame.size)
+        SLSSetWindowLevel(cid, wid, windowLevel())
+        // Order below the target: the ring shows in the tiling gap and macOS raising the focused
+        // window on click doesn't fight us.
+        SLSOrderWindow(cid, wid, -1, targetWid)
+    }
+
+    /// Fast path for window-server move events: reposition only, no redraw. This is what keeps the
+    /// border glued to the window during a mouse drag with no lag.
+    func reposition() {
+        guard visible, let bounds = targetBounds() else { return }
+        let outset = width / 2
+        let origin = CGPoint(x: bounds.origin.x - outset, y: bounds.origin.y - outset)
+        let transaction = SLSTransactionCreate(cid).takeRetainedValue()
+        SLSTransactionMoveWindowWithGroup(transaction, wid, origin)
+        SLSTransactionCommit(transaction, 0)
     }
 
     func hide() {
+        visible = false
         SLSOrderWindow(cid, wid, 0, 0)
     }
 
-    private func windowLevel(of targetWid: UInt32) -> Int32 {
+    private func windowLevel() -> Int32 {
         var level: Int32 = 0
         SLSGetWindowLevel(cid, targetWid, &level)
         return level
     }
 
-    private func draw(size: CGSize, color: BorderColor, width: CGFloat, cornerRadius: CGFloat) {
+    private func draw(size: CGSize) {
         guard let context else { return }
         context.clear(CGRect(origin: .zero, size: size))
 

@@ -2,6 +2,7 @@
 #define private_header_h
 
 #import <ApplicationServices/ApplicationServices.h>
+#import <mach/mach.h>
 
 // Potential alternative 1?
 // func allWindowsOnCurrentMacOsSpace() {
@@ -47,5 +48,15 @@ extern CGError SLSGetWindowBounds(int cid, uint32_t wid, CGRect *frame);
 extern CGError SLSGetWindowLevel(int cid, uint32_t wid, int *level);
 extern CGContextRef SLWindowContextCreate(int cid, uint32_t wid, CFDictionaryRef options);
 extern CGError SLSFlushWindowContentRegion(int cid, uint32_t wid, CFTypeRef dirty);
+
+// Window-server event subscription + transactions (for low-latency border tracking)
+extern CGError SLSGetEventPort(int cid, mach_port_t *port_out);
+extern CGEventRef SLEventCreateNextEvent(int cid);
+extern void _CFMachPortSetOptions(CFMachPortRef mach_port, int options);
+extern CGError SLSRegisterNotifyProc(void *handler, uint32_t event, void *context);
+extern CGError SLSRequestNotificationsForWindows(int cid, uint32_t *window_list, int window_count);
+extern CFTypeRef SLSTransactionCreate(int cid);
+extern CGError SLSTransactionMoveWindowWithGroup(CFTypeRef transaction, uint32_t wid, CGPoint point);
+extern CGError SLSTransactionCommit(CFTypeRef transaction, int synchronous);
 
 #endif
