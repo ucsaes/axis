@@ -14,7 +14,7 @@ final class BorderWindow {
     private var windowSize: CGSize = .zero
 
     // Last rendered appearance, so a move event can reposition without recomputing them
-    private(set) var color: BorderColor = BorderColor(topLeft: 0, bottomRight: 0)
+    private(set) var color: BorderColor = BorderColor(stops: [0])
     private var width: CGFloat = 0
     private var cornerRadius: CGFloat = 0
     private(set) var isVisible = false
@@ -130,33 +130,94 @@ final class BorderWindow {
         context.replacePathWithStrokedPath()
         context.clip()
 
-        if color.isGradient {
-            let cgGradient = CGGradient(
-                colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                colors: [color.topLeft.cgColor, color.bottomRight.cgColor] as CFArray,
-                locations: [0, 1],
-            )
-            if let cgGradient {
+        let stops = color.stops
+        switch stops.count {
+            case 0: break
+            case 1:
+                context.setFillColor(stops[0].cgColor)
+                context.fill(CGRect(origin: .zero, size: size))
+            case 2:
                 // top-left -> bottom-right. SLS context origin is bottom-left, so top-left is (0, height)
-                context.drawLinearGradient(
-                    cgGradient,
-                    start: CGPoint(x: 0, y: size.height),
-                    end: CGPoint(x: size.width, y: 0),
-                    options: [.drawsBeforeStartLocation, .drawsAfterEndLocation],
-                )
-            }
-        } else {
-            context.setFillColor(color.topLeft.cgColor)
-            context.fill(CGRect(origin: .zero, size: size))
+                if let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                      colors: [stops[0].cgColor, stops[1].cgColor] as CFArray, locations: [0, 1])
+                {
+                    context.drawLinearGradient(g, start: CGPoint(x: 0, y: size.height), end: CGPoint(x: size.width, y: 0),
+                                               options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+                }
+            default:
+                drawConicGradient(in: size, anchors: conicAnchors(for: stops, in: size))
         }
         context.restoreGState()
 
         context.flush()
         SLSFlushWindowContentRegion(cid, wid, nil)
     }
+
+    /// Maps the stops to anchor angles (degrees, measured from the ring center, context y-up) around
+    /// the perimeter. 4 stops land on the corners, 8 on corners + edge midpoints (clockwise from
+    /// top-left); any other count is spread evenly clockwise from the top.
+    private func conicAnchors(for stops: [UInt32], in size: CGSize) -> [(angle: Double, color: UInt32)] {
+        func deg(_ x: Double, _ y: Double) -> Double { (atan2(y, x) * 180 / .pi).truncatingRemainder(dividingBy: 360) }
+        let w = size.width / 2, h = size.height / 2
+        let tl = deg(-w, h), tr = deg(w, h), br = deg(w, -h), bl = deg(-w, -h)
+        let top = 90.0, right = 0.0, bottom = 270.0, left = 180.0
+        let angles: [Double] = switch stops.count {
+            case 4: [tl, tr, br, bl] // corners, clockwise from top-left
+            case 8: [tl, top, tr, right, br, bottom, bl, left] // corners + edge midpoints
+            default: (0 ..< stops.count).map { top - Double($0) * 360 / Double(stops.count) } // even, clockwise from top
+        }
+        return zip(angles, stops).map { ($0, $1) }
+    }
+
+    /// Fills the (already clipped) ring with a conic gradient by sweeping thin wedges from the center.
+    private func drawConicGradient(in size: CGSize, anchors: [(angle: Double, color: UInt32)]) {
+        guard let context, anchors.count >= 2 else { return }
+        let sorted = anchors.map { (angle: (($0.angle.truncatingRemainder(dividingBy: 360)) + 360).truncatingRemainder(dividingBy: 360), color: $0.color) }
+            .sorted { $0.angle < $1.angle }
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        let r = hypot(size.width, size.height) // overshoots the frame so wedges cover the whole ring
+        let stepDeg = 2.0
+        var a = 0.0
+        while a < 360 {
+            let mid = a + stepDeg / 2
+            context.setFillColor(conicColor(atAngle: mid, sorted).cgColor)
+            let a0 = a * .pi / 180, a1 = (a + stepDeg) * .pi / 180
+            context.beginPath()
+            context.move(to: center)
+            context.addLine(to: CGPoint(x: center.x + r * cos(a0), y: center.y + r * sin(a0)))
+            context.addLine(to: CGPoint(x: center.x + r * cos(a1), y: center.y + r * sin(a1)))
+            context.closePath()
+            context.fillPath()
+            a += stepDeg
+        }
+    }
+
+    /// Interpolates the 0xAARRGGBB color at `angle` (degrees) between the two surrounding anchors.
+    private func conicColor(atAngle angle: Double, _ sorted: [(angle: Double, color: UInt32)]) -> UInt32 {
+        let a = ((angle.truncatingRemainder(dividingBy: 360)) + 360).truncatingRemainder(dividingBy: 360)
+        var lo = sorted[sorted.count - 1], hi = sorted[0]
+        var span = hi.angle + 360 - lo.angle
+        var pos = a < hi.angle ? a + 360 - lo.angle : a - lo.angle
+        for i in 0 ..< sorted.count - 1 where a >= sorted[i].angle && a < sorted[i + 1].angle {
+            lo = sorted[i]; hi = sorted[i + 1]
+            span = hi.angle - lo.angle
+            pos = a - lo.angle
+        }
+        let t = span > 0 ? pos / span : 0
+        return lo.color.lerp(to: hi.color, t)
+    }
 }
 
 extension UInt32 {
+    /// Linearly interpolate each 0xAARRGGBB channel toward `other` by t in [0, 1]
+    fileprivate func lerp(to other: UInt32, _ t: Double) -> UInt32 {
+        func ch(_ shift: UInt32) -> UInt32 {
+            let a = Double((self >> shift) & 0xFF), b = Double((other >> shift) & 0xFF)
+            return UInt32((a + (b - a) * t).rounded()) << shift
+        }
+        return ch(24) | ch(16) | ch(8) | ch(0)
+    }
+
     /// Interpret 0xAARRGGBB as a CGColor
     fileprivate var cgColor: CGColor {
         CGColor(

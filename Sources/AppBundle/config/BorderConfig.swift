@@ -13,7 +13,7 @@ struct BorderConfig: ConvenienceCopyable, Equatable, Sendable {
         width: 6,
         cornerRadius: 12,
         blacklist: [],
-        defaultColor: BorderColor(topLeft: 0xFFEC_ECEE, bottomRight: 0xFFCC_CCD0),
+        defaultColor: BorderColor(stops: [0xFFEC_ECEE, 0xFFCC_CCD0]),
         workspaceColors: [:],
     )
 
@@ -22,11 +22,15 @@ struct BorderConfig: ConvenienceCopyable, Equatable, Sendable {
     }
 }
 
-/// A border color: a single solid color (topLeft == bottomRight) or a top-left → bottom-right gradient.
-/// Stored as 0xAARRGGBB.
+/// A border color: 1 to 8 stops (each 0xAARRGGBB) placed around the border ring. The number of
+/// stops decides the layout (see BorderWindow for rendering):
+/// - 1: solid
+/// - 2: top-left → bottom-right diagonal gradient
+/// - 4: one per corner
+/// - 8: corners + edge midpoints (clockwise from top-left)
+/// - other counts: spread evenly around the ring
 struct BorderColor: Equatable, Sendable {
-    var topLeft: UInt32
-    var bottomRight: UInt32
+    var stops: [UInt32]
 
-    var isGradient: Bool { topLeft != bottomRight }
+    var isGradient: Bool { stops.count > 1 }
 }
