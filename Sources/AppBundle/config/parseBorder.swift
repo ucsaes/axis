@@ -64,16 +64,16 @@ private func parseBorderColors(_ raw: OrderedJson, _ backtrace: ConfigBacktrace,
 
 private func parseBorderColor(_ raw: OrderedJson, _ backtrace: ConfigBacktrace, _ errors: inout [ConfigParseDiagnostic]) -> BorderColor? {
     if let array = raw.asArrayOrNil {
-        guard array.count == 2 else {
-            errors += [.init(backtrace, "A gradient color must be a pair [top-left, bottom-right]")]
+        guard (1 ... 8).contains(array.count) else {
+            errors += [.init(backtrace, "A gradient must have 1 to 8 colors (corners and edge midpoints around the ring)")]
             return nil
         }
-        guard let tl = parseHexColor(array[0], backtrace + .index(0), &errors),
-              let br = parseHexColor(array[1], backtrace + .index(1), &errors) else { return nil }
-        return BorderColor(topLeft: tl, bottomRight: br)
+        let stops = array.enumerated().compactMap { parseHexColor($1, backtrace + .index($0), &errors) }
+        guard stops.count == array.count else { return nil }
+        return BorderColor(stops: stops)
     }
     guard let solid = parseHexColor(raw, backtrace, &errors) else { return nil }
-    return BorderColor(topLeft: solid, bottomRight: solid)
+    return BorderColor(stops: [solid])
 }
 
 /// Parses `#rrggbb`, `#aarrggbb`, or `0x...` into 0xAARRGGBB (alpha defaults to fully opaque).
