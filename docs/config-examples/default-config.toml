@@ -80,15 +80,18 @@ on-mode-changed = []
     outer.right =      0
 
 # Native window border drawn around the focused window (Axis addition).
-# Colors are #rrggbb, #aarrggbb, or 0x... A pair [top-left, bottom-right] makes a gradient.
+# Colors are #rrggbb, #aarrggbb, or 0x... The number of colors picks the gradient layout:
+# 1 solid, 2 top-left -> bottom-right, 4 corners, 8 corners + edge midpoints (clockwise from
+# top-left), any other count spread evenly around the ring. Keep width <= the inner gap.
 # [border]
 #     enabled = true
-#     width = 12
+#     width = 6
 #     corner-radius = 12
 #     blacklist = ['com.raycast.macos']
 # [border.colors]
 #     default = '#ececee'
 #     1 = ['#e86c64', '#ce4a42']
+#     2 = ['#e86c64', '#eca644', '#54b97a', '#58a0da']  # four corners
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
