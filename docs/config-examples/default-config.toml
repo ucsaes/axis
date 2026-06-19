@@ -93,6 +93,19 @@ on-mode-changed = []
 #     1 = ['#e86c64', '#ce4a42']
 #     2 = ['#e86c64', '#eca644', '#54b97a', '#58a0da']  # four corners
 
+# Workspace strips (Axis addition). One strip stack keyed by the number of connected monitors.
+# With multiple monitors each strip is pinned to one monitor (1:1); a single monitor hosts the
+# whole stack. Use the `nav` command to move within a strip / across the stack.
+# [strips]
+#     1 = [['1', '2', '3'], ['4', '5']]   # single monitor: two strips stacked
+#     2 = [['1', '2', '3'], ['4', '5']]   # two monitors: one strip each
+
+# Strip direction for a single monitor (multi-monitor is inferred from the physical layout):
+# 'horizontal' = horizontal strips, navigate within with left/right (default)
+# 'vertical'   = vertical strips, navigate within with up/down
+# Fallback value (if you omit the key): strip-orientation = 'horizontal'
+# strip-orientation = 'horizontal'
+
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 # 'main' binding mode must be always presented

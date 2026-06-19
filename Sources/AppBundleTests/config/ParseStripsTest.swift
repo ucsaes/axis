@@ -93,13 +93,26 @@ final class ParseStripsTest: XCTestCase {
     }
 }
 
+@MainActor
 final class DetectMonitorArrangementTest: XCTestCase {
+    override func setUp() async throws { config = defaultConfig }
+
     private func rect(_ x: CGFloat, _ y: CGFloat, w: CGFloat = 1920, h: CGFloat = 1080) -> Rect {
         Rect(topLeftX: x, topLeftY: y, width: w, height: h)
     }
 
-    func testSingleMonitorIsVerticalStack() {
+    func testSingleMonitorFollowsConfig() {
+        config.singleMonitorStripArrangement = .verticalStack
         assertEquals(detectMonitorArrangement([rect(0, 0)]), .verticalStack)
+        config.singleMonitorStripArrangement = .horizontalRow
+        assertEquals(detectMonitorArrangement([rect(0, 0)]), .horizontalRow)
+    }
+
+    func testStripOrientationParsing() {
+        assertEquals(parseConfig("strip-orientation = 'vertical'").config.singleMonitorStripArrangement, .horizontalRow)
+        assertEquals(parseConfig("strip-orientation = 'horizontal'").config.singleMonitorStripArrangement, .verticalStack)
+        assertEquals(parseConfig("strip-orientation = 'sideways'").errors,
+                     ["[ERROR] strip-orientation: Can't parse strip-orientation 'sideways'. Expected 'horizontal' or 'vertical'"])
     }
 
     func testVerticalStack() {

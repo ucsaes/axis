@@ -1,5 +1,18 @@
 import Common
 
+/// Parses `strip-orientation` — the strip direction for a single monitor.
+/// `horizontal` = horizontal strips, navigate within with left/right (default).
+/// `vertical`   = vertical strips, navigate within with up/down.
+func parseStripOrientation(_ raw: OrderedJson, _ backtrace: ConfigBacktrace) -> ParsedConfig<MonitorArrangement> {
+    parseString(raw, backtrace).flatMap {
+        switch $0 {
+            case "horizontal": .success(.verticalStack)
+            case "vertical": .success(.horizontalRow)
+            default: .failure(.init(backtrace, "Can't parse strip-orientation '\($0)'. Expected 'horizontal' or 'vertical'"))
+        }
+    }
+}
+
 /// Parses the `[strips]` table.
 ///
 /// ```toml
