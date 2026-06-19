@@ -12,9 +12,11 @@ enum MonitorArrangement: Sendable {
     case horizontalRow
 }
 
+/// Multi-monitor arrangement is detected from the physical layout. A single monitor has no layout
+/// to infer from, so its strip direction comes from config (`strip-orientation`).
+@MainActor
 func detectMonitorArrangement(_ monitorRects: [Rect]) -> MonitorArrangement {
-    // A single monitor hosts a stack of horizontal strips
-    guard monitorRects.count > 1 else { return .verticalStack }
+    guard monitorRects.count > 1 else { return config.singleMonitorStripArrangement }
     let xs = monitorRects.map(\.center.x)
     let ys = monitorRects.map(\.center.y)
     let xSpread = (xs.max() ?? 0) - (xs.min() ?? 0)

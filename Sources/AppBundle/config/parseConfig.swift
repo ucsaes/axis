@@ -138,6 +138,7 @@ private let configParser: [String: any ParserProtocol<Config>] = [
     "border": Parser(\.border, parseBorder),
     "workspace-to-monitor-force-assignment": Parser(\.workspaceToMonitorForceAssignment, parseWorkspaceToMonitorAssignment),
     "strips": Parser(\.strips, parseStrips),
+    "strip-orientation": Parser(\.singleMonitorStripArrangement, parseStripOrientation),
     "on-window-detected": Parser(\.onWindowDetected, parseOnWindowDetectedArray),
 
     // Deprecated

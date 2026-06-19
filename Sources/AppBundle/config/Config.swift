@@ -59,6 +59,9 @@ struct Config: ConvenienceCopyable {
     var border: BorderConfig = .default
     var workspaceToMonitorForceAssignment: [String: [MonitorDescription]] = [:]
     var strips: [Int: [[String]]] = [:] // Monitor count -> strips (one strip per monitor)
+    // Strip direction for a single monitor (multi-monitor is detected from physical layout).
+    // .verticalStack = horizontal strips (h/l within); .horizontalRow = vertical strips (j/k within)
+    var singleMonitorStripArrangement: MonitorArrangement = .verticalStack
     var modes: [String: Mode] = [:]
     var onWindowDetected: [WindowDetectedCallback] = []
     var onModeChanged: [any Command] = []
