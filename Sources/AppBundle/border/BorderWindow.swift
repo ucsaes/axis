@@ -176,12 +176,15 @@ final class BorderWindow {
             .sorted { $0.angle < $1.angle }
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let r = hypot(size.width, size.height) // overshoots the frame so wedges cover the whole ring
-        let stepDeg = 2.0
+        let stepDeg = 1.0
+        // Each wedge extends a bit past the next one's start so neighbors overlap. Without this, the
+        // antialiased edges of adjacent wedges leave a thin transparent seam that reads as a dark gap.
+        let overlapDeg = 1.0
         var a = 0.0
         while a < 360 {
             let mid = a + stepDeg / 2
             context.setFillColor(conicColor(atAngle: mid, sorted).cgColor)
-            let a0 = a * .pi / 180, a1 = (a + stepDeg) * .pi / 180
+            let a0 = a * .pi / 180, a1 = (a + stepDeg + overlapDeg) * .pi / 180
             context.beginPath()
             context.move(to: center)
             context.addLine(to: CGPoint(x: center.x + r * cos(a0), y: center.y + r * sin(a0)))
