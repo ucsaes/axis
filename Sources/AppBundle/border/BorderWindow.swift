@@ -17,6 +17,10 @@ final class BorderWindow {
     private(set) var color: BorderColor = BorderColor(stops: [0])
     private var width: CGFloat = 0
     private var cornerRadius: CGFloat = 0
+    // What was last painted into the window buffer. The SLS surface keeps its content while the
+    // border is hidden (ordered out), so re-showing an unchanged border can skip the (expensive,
+    // for multi-stop gradients) repaint and just reorder it back in.
+    private var painted: (size: CGSize, color: BorderColor, width: CGFloat, cornerRadius: CGFloat)?
     private(set) var isVisible = false
 
     /// SLS window tags. (1 << 1): no shadow. (1 << 9): keep out of normal window management.
@@ -81,9 +85,18 @@ final class BorderWindow {
             SLSSetWindowShape(cid, wid, Float(frame.origin.x), Float(frame.origin.y), region)
             context = SLWindowContextCreate(cid, wid, nil)?.takeRetainedValue()
             context?.interpolationQuality = .none
+            painted = nil // new surface starts blank
         }
         windowSize = frame.size
-        draw(size: frame.size)
+
+        // Repaint only when the appearance actually changed. Re-focusing an unchanged window keeps
+        // the existing buffer (the SLS surface survives being hidden), which matters most for the
+        // multi-stop conic gradient whose repaint is the costly part of a focus switch.
+        let want = (size: frame.size, color: color, width: width, cornerRadius: cornerRadius)
+        if painted.map({ $0 != want }) ?? true {
+            draw(size: frame.size)
+            painted = want
+        }
 
         // Position + z-order in one atomic transaction. The border sits one level ABOVE the target:
         // a dimming overlay lives at the target's (normal) level, so a border at the same level races
@@ -177,11 +190,14 @@ final class BorderWindow {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let r = hypot(size.width, size.height) // overshoots the frame so wedges cover the whole ring
         let stepDeg = 2.0
+        // Each wedge extends a bit past the next one's start so neighbors overlap. Without this, the
+        // antialiased edges of adjacent wedges leave a thin transparent seam that reads as a dark gap.
+        let overlapDeg = 1.5
         var a = 0.0
         while a < 360 {
             let mid = a + stepDeg / 2
             context.setFillColor(conicColor(atAngle: mid, sorted).cgColor)
-            let a0 = a * .pi / 180, a1 = (a + stepDeg) * .pi / 180
+            let a0 = a * .pi / 180, a1 = (a + stepDeg + overlapDeg) * .pi / 180
             context.beginPath()
             context.move(to: center)
             context.addLine(to: CGPoint(x: center.x + r * cos(a0), y: center.y + r * sin(a0)))
